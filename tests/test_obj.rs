@@ -2,7 +2,7 @@ use infmesh::io::obj::*;
 use infmesh::TriMesh;
 use nalgebra::{Point3, Vector3};
 
-const TEST_FILES: &str = "OpenMesh/src/Unittests/TestFiles";
+const TEST_FILES: &str = "tests/TestFiles";
 
 /// Port of: LoadSimpleOBJ
 /// Load cube-minimal.obj and verify topology.
