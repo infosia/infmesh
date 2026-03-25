@@ -1,5 +1,6 @@
 use nalgebra::{Point3, Vector3};
 
+use crate::Scalar;
 use crate::handle::{EdgeHandle, FaceHandle, HalfedgeHandle, VertexHandle};
 use crate::trimesh::TriMesh;
 use crate::polymesh::PolyMesh;
@@ -7,44 +8,44 @@ use crate::polymesh::PolyMesh;
 /// Trait for meshes that have geometry (vertex positions).
 pub trait MeshGeometry {
     fn conn(&self) -> &crate::mesh::Connectivity;
-    fn point(&self, vh: VertexHandle) -> &Point3<f64>;
+    fn point(&self, vh: VertexHandle) -> &Point3<Scalar>;
 }
 
 impl MeshGeometry for TriMesh {
     fn conn(&self) -> &crate::mesh::Connectivity { &**self }
-    fn point(&self, vh: VertexHandle) -> &Point3<f64> { self.point(vh) }
+    fn point(&self, vh: VertexHandle) -> &Point3<Scalar> { self.point(vh) }
 }
 
 impl MeshGeometry for PolyMesh {
     fn conn(&self) -> &crate::mesh::Connectivity { &**self }
-    fn point(&self, vh: VertexHandle) -> &Point3<f64> { self.point(vh) }
+    fn point(&self, vh: VertexHandle) -> &Point3<Scalar> { self.point(vh) }
 }
 
 /// Geometry calculations that work on any mesh with positions.
-pub fn calc_edge_vector<M: MeshGeometry>(mesh: &M, hh: HalfedgeHandle) -> Vector3<f64> {
+pub fn calc_edge_vector<M: MeshGeometry>(mesh: &M, hh: HalfedgeHandle) -> Vector3<Scalar> {
     let conn = mesh.conn();
     let p0 = mesh.point(conn.from_vertex_handle(hh));
     let p1 = mesh.point(conn.to_vertex_handle(hh));
     p1 - p0
 }
 
-pub fn calc_edge_length<M: MeshGeometry>(mesh: &M, eh: EdgeHandle) -> f64 {
+pub fn calc_edge_length<M: MeshGeometry>(mesh: &M, eh: EdgeHandle) -> Scalar {
     calc_edge_vector(mesh, eh.h0()).norm()
 }
 
-pub fn calc_edge_sqr_length<M: MeshGeometry>(mesh: &M, eh: EdgeHandle) -> f64 {
+pub fn calc_edge_sqr_length<M: MeshGeometry>(mesh: &M, eh: EdgeHandle) -> Scalar {
     calc_edge_vector(mesh, eh.h0()).norm_squared()
 }
 
 /// Calculate the normal of a triangle face from three points.
-pub fn calc_face_normal_pts(p0: &Point3<f64>, p1: &Point3<f64>, p2: &Point3<f64>) -> Vector3<f64> {
+pub fn calc_face_normal_pts(p0: &Point3<Scalar>, p1: &Point3<Scalar>, p2: &Point3<Scalar>) -> Vector3<Scalar> {
     let d0 = p1 - p0;
     let d1 = p2 - p0;
     d0.cross(&d1)
 }
 
 /// Calculate the normal of a face using Newell's method (works for polygons).
-pub fn calc_face_normal<M: MeshGeometry>(mesh: &M, fh: FaceHandle) -> Vector3<f64> {
+pub fn calc_face_normal<M: MeshGeometry>(mesh: &M, fh: FaceHandle) -> Vector3<Scalar> {
     let conn = mesh.conn();
     let start = conn.face_halfedge_handle(fh);
 
@@ -70,7 +71,7 @@ pub fn calc_face_normal<M: MeshGeometry>(mesh: &M, fh: FaceHandle) -> Vector3<f6
     } else {
         // Polygon: Newell's method
         let n = vertices.len();
-        let mut normal: Vector3<f64> = Vector3::zeros();
+        let mut normal: Vector3<Scalar> = Vector3::zeros();
         for i in 0..n {
             let p0 = mesh.point(vertices[i]);
             let p1 = mesh.point(vertices[(i + 1) % n]);
@@ -88,7 +89,7 @@ pub fn calc_face_normal<M: MeshGeometry>(mesh: &M, fh: FaceHandle) -> Vector3<f6
 /// Each face normal is normalized before summing, so all faces contribute equally
 /// regardless of area. This matches the C++ OpenMesh default behavior. For
 /// area-weighted normals, sum unnormalized cross products instead.
-pub fn calc_vertex_normal<M: MeshGeometry>(mesh: &M, vh: VertexHandle) -> Vector3<f64> {
+pub fn calc_vertex_normal<M: MeshGeometry>(mesh: &M, vh: VertexHandle) -> Vector3<Scalar> {
     let conn = mesh.conn();
     let mut normal = Vector3::zeros();
 
@@ -101,7 +102,7 @@ pub fn calc_vertex_normal<M: MeshGeometry>(mesh: &M, vh: VertexHandle) -> Vector
 }
 
 /// Calculate the centroid (average position) of a face.
-pub fn calc_face_centroid<M: MeshGeometry>(mesh: &M, fh: FaceHandle) -> Point3<f64> {
+pub fn calc_face_centroid<M: MeshGeometry>(mesh: &M, fh: FaceHandle) -> Point3<Scalar> {
     let conn = mesh.conn();
     let start = conn.face_halfedge_handle(fh);
     let mut sum = Vector3::zeros();
@@ -117,11 +118,11 @@ pub fn calc_face_centroid<M: MeshGeometry>(mesh: &M, fh: FaceHandle) -> Point3<f
         }
     }
 
-    Point3::from(sum / count as f64)
+    Point3::from(sum / count as Scalar)
 }
 
 /// Calculate the midpoint of an edge.
-pub fn calc_edge_midpoint<M: MeshGeometry>(mesh: &M, eh: EdgeHandle) -> Point3<f64> {
+pub fn calc_edge_midpoint<M: MeshGeometry>(mesh: &M, eh: EdgeHandle) -> Point3<Scalar> {
     let conn = mesh.conn();
     let h0 = eh.h0();
     let p0 = mesh.point(conn.from_vertex_handle(h0));
@@ -130,7 +131,7 @@ pub fn calc_edge_midpoint<M: MeshGeometry>(mesh: &M, eh: EdgeHandle) -> Point3<f
 }
 
 /// Calculate the centroid of the entire mesh (average of all vertex positions).
-pub fn calc_mesh_centroid<M: MeshGeometry>(mesh: &M) -> Point3<f64> {
+pub fn calc_mesh_centroid<M: MeshGeometry>(mesh: &M) -> Point3<Scalar> {
     let conn = mesh.conn();
     let mut sum = Vector3::zeros();
     let mut count = 0;
@@ -141,7 +142,7 @@ pub fn calc_mesh_centroid<M: MeshGeometry>(mesh: &M) -> Point3<f64> {
     }
 
     if count > 0 {
-        Point3::from(sum / count as f64)
+        Point3::from(sum / count as Scalar)
     } else {
         Point3::origin()
     }
@@ -151,7 +152,7 @@ pub fn calc_mesh_centroid<M: MeshGeometry>(mesh: &M) -> Point3<f64> {
 ///
 /// Only valid for triangular faces — uses exactly three vertices.
 /// For polygon faces, triangulate first or use a polygon area method.
-pub fn calc_face_area<M: MeshGeometry>(mesh: &M, fh: FaceHandle) -> f64 {
+pub fn calc_face_area<M: MeshGeometry>(mesh: &M, fh: FaceHandle) -> Scalar {
     let conn = mesh.conn();
     let start = conn.face_halfedge_handle(fh);
     let v0 = conn.to_vertex_handle(start);
@@ -167,7 +168,7 @@ pub fn calc_face_area<M: MeshGeometry>(mesh: &M, fh: FaceHandle) -> f64 {
 
 /// Calculate the dihedral angle at an edge (angle between the two adjacent face normals).
 /// Returns 0.0 for boundary edges.
-pub fn calc_dihedral_angle<M: MeshGeometry>(mesh: &M, eh: EdgeHandle) -> f64 {
+pub fn calc_dihedral_angle<M: MeshGeometry>(mesh: &M, eh: EdgeHandle) -> Scalar {
     let conn = mesh.conn();
     let h0 = eh.h0();
     let h1 = eh.h1();

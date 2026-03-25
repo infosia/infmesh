@@ -1,8 +1,9 @@
 use std::collections::HashMap;
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 
 use nalgebra::Point3;
 
+use crate::Scalar;
 use crate::error::MeshError;
 use crate::handle::{FaceHandle, VertexHandle};
 use crate::polymesh::PolyMesh;
@@ -63,11 +64,11 @@ impl Primitive for Circle {
 
         let mut mesh = PolyMesh::new();
         let radius = 0.5;
-        let angle_increment = 2.0 * PI / self.segments as f64;
+        let angle_increment = 2.0 * PI / self.segments as Scalar;
 
         let mut verts = Vec::with_capacity(self.segments);
         for i in 0..self.segments {
-            let angle = i as f64 * angle_increment;
+            let angle = i as Scalar * angle_increment;
             let x = radius * angle.cos();
             let z = -radius * angle.sin();
             verts.push(mesh.add_vertex(Point3::new(x, 0.0, z)));
@@ -96,9 +97,9 @@ impl Primitive for Cube {
 
     fn generate(self) -> Result<(PolyMesh, CubeData), MeshError> {
         let [n_x, n_y, n_z] = self.subdivisions;
-        let dx = 1.0 / n_x as f64;
-        let dy = 1.0 / n_y as f64;
-        let dz = 1.0 / n_z as f64;
+        let dx = 1.0 / n_x as Scalar;
+        let dy = 1.0 / n_y as Scalar;
+        let dz = 1.0 / n_z as Scalar;
 
         let mut mesh = PolyMesh::new();
         let mut vertex_map: HashMap<(u16, u16, u16), VertexHandle> = HashMap::new();
@@ -109,9 +110,9 @@ impl Primitive for Cube {
                 for z in 0..=n_z {
                     if x == 0 || x == n_x || y == 0 || y == n_y || z == 0 || z == n_z {
                         let pos = Point3::new(
-                            -0.5 + x as f64 * dx,
-                            -0.5 + y as f64 * dy,
-                            -0.5 + z as f64 * dz,
+                            -0.5 + x as Scalar * dx,
+                            -0.5 + y as Scalar * dy,
+                            -0.5 + z as Scalar * dz,
                         );
                         let vh = mesh.add_vertex(pos);
                         vertex_map.insert((x, y, z), vh);
@@ -182,9 +183,9 @@ impl Primitive for Icosphere {
 
     fn generate(self) -> Result<(TriMesh, IcosphereData), MeshError> {
         let mut mesh = TriMesh::new();
-        let t = (1.0 + 5.0_f64.sqrt()) / 2.0;
+        let t = (1.0 + (5.0 as Scalar).sqrt()) / 2.0;
 
-        let base_verts = [
+        let base_verts: [[Scalar; 3]; 12] = [
             [-1.0, t, 0.0],
             [1.0, t, 0.0],
             [-1.0, -t, 0.0],
@@ -311,7 +312,7 @@ impl Primitive for UvSphere {
         }
 
         let mut mesh = PolyMesh::new();
-        let radius = 0.5;
+        let radius: Scalar = 0.5;
 
         // Top pole
         let top = mesh.add_vertex(Point3::new(0.0, radius, 0.0));
@@ -319,13 +320,13 @@ impl Primitive for UvSphere {
         // Ring vertices (rings-1 internal rings between the two poles)
         let mut ring_verts: Vec<Vec<VertexHandle>> = Vec::new();
         for ring in 1..self.rings {
-            let phi = PI * ring as f64 / self.rings as f64;
+            let phi = PI * ring as Scalar / self.rings as Scalar;
             let y = radius * phi.cos();
             let ring_radius = radius * phi.sin();
 
             let mut row = Vec::with_capacity(self.segments);
             for seg in 0..self.segments {
-                let theta = 2.0 * PI * seg as f64 / self.segments as f64;
+                let theta = 2.0 * PI * seg as Scalar / self.segments as Scalar;
                 let x = ring_radius * theta.cos();
                 let z = ring_radius * theta.sin();
                 row.push(mesh.add_vertex(Point3::new(x, y, z)));
@@ -372,8 +373,8 @@ impl Primitive for UvSphere {
 
 pub struct Cylinder {
     pub segments: usize,
-    pub height: f64,
-    pub radius: f64,
+    pub height: Scalar,
+    pub radius: Scalar,
 }
 
 pub struct CylinderData {
@@ -395,7 +396,7 @@ impl Primitive for Cylinder {
         let mut bottom_verts = Vec::new();
 
         for i in 0..self.segments {
-            let angle = (i as f64 / self.segments as f64) * 2.0 * PI;
+            let angle = (i as Scalar / self.segments as Scalar) * 2.0 * PI;
             let x = angle.cos() * self.radius;
             let z = angle.sin() * self.radius;
 

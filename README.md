@@ -10,7 +10,7 @@ Unofficial Rust port of the [OpenMesh](https://www.graphics.rwth-aachen.de/softw
 - **Triangle and polygon meshes** -- `TriMesh` (auto-triangulation, flip, split, collapse) and `PolyMesh` (arbitrary polygons)
 - **Polygon mesh operations** -- extrude faces, extrude edges, insert edge, loop cut, split edge, flip face normals, edge ring selection
 - **Primitives** -- generate common shapes: Quad, Circle, Cube, Cylinder, Icosphere, UV Sphere
-- **Geometry** -- normals, centroids, areas, edge lengths, dihedral angles via `nalgebra`
+- **Geometry** -- normals, centroids, areas, edge lengths, dihedral angles via `nalgebra` (f32 by default, configurable via `Scalar` type alias)
 - **Property system** -- attach typed per-element data (vertex colors, face labels, etc.)
 - **Deletion and garbage collection** -- lazy deletion with compacting garbage collection
 - **OBJ I/O** -- read and write Wavefront OBJ files
@@ -182,7 +182,7 @@ decimater::decimate(&mut mesh, 100);
 
 ```
 src/
-  lib.rs              -- crate root, module declarations and re-exports
+  lib.rs              -- crate root, module declarations, re-exports, and `Scalar` type alias (f32/f64)
   handle.rs           -- handle newtypes (VertexHandle, etc.) and Status bitflags
   error.rs            -- MeshError enum
   mesh/
@@ -221,7 +221,7 @@ src/
 cargo test
 ```
 
-129 tests covering handles, connectivity, iterators, circulators, properties, deletion, triangle operations, polygon operations, primitives, geometry, I/O, and algorithms.
+130 tests covering handles, connectivity, iterators, circulators, properties, deletion, triangle operations, polygon operations, primitives, geometry, I/O, and algorithms.
 
 ## Improvements over C++ OpenMesh
 
@@ -231,6 +231,14 @@ This port fixes several issues present in the C++ OpenMesh implementation:
 - **`collapse_loop` sets all next/prev links** -- When splicing a halfedge into a neighboring chain during 2-gon collapse, the C++ version only sets 2 of the 4 required next/prev links. The Rust version correctly sets all 4, preventing potential connectivity corruption.
 - **Garbage collection compacts geometry** -- `TriMesh` and `PolyMesh` override garbage collection to compact the `points` vector alongside the topology arrays, ensuring vertex positions stay in sync with remapped handles.
 - **Decimater guards against NaN errors** -- The quadric error decimater handles NaN error values gracefully: `CollapseCandidate` ordering treats NaN consistently to avoid `BinaryHeap` invariant violations, and NaN-error candidates are skipped during collapse selection.
+
+## Scalar Precision
+
+All geometry uses the `Scalar` type alias defined in `src/lib.rs` (defaults to `f32`). To switch to double precision, change one line:
+
+```rust
+pub type Scalar = f64;  // in src/lib.rs
+```
 
 ## References
 

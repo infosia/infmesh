@@ -1,4 +1,5 @@
 use nalgebra::Point3;
+use infmesh::Scalar;
 use infmesh::TriMesh;
 use infmesh::algo::loop_subdivision;
 use infmesh::algo::smoother;
@@ -20,7 +21,7 @@ fn make_grid_3x3() -> TriMesh {
 
     for j in 0..3 {
         for i in 0..3 {
-            verts.push(mesh.add_vertex(Point3::new(i as f64, j as f64, 0.0)));
+            verts.push(mesh.add_vertex(Point3::new(i as Scalar, j as Scalar, 0.0)));
         }
     }
 
@@ -58,7 +59,7 @@ fn make_tetrahedron() -> TriMesh {
 /// Build an icosahedron (12 vertices, 20 faces) - good test mesh for algorithms.
 fn make_icosahedron() -> TriMesh {
     let mut mesh = TriMesh::new();
-    let phi = (1.0 + 5.0_f64.sqrt()) / 2.0;
+    let phi = (1.0 + (5.0 as Scalar).sqrt()) / 2.0;
 
     let v: Vec<_> = [
         (-1.0, phi, 0.0), (1.0, phi, 0.0), (-1.0, -phi, 0.0), (1.0, -phi, 0.0),
@@ -202,20 +203,6 @@ fn laplacian_smooth_reduces_noise() {
     smoother::laplacian_smooth(&mut mesh, &opts);
 
     let z_after = mesh.point(v3).z;
-    // With fix_boundary=true and v3 being interior, it should move toward plane
-    // But v3 might be boundary... let's check
-    // In this mesh, v3 is actually NOT boundary (surrounded by 3 faces)
-    // Wait - v3 IS boundary because not all edges around it are shared
-    // Actually all 3 edges from v3 to (v0,v1,v2) are each shared by 2 faces? No.
-    // v0-v1 is not connected to v3... let me reconsider.
-    // Face 1: v0,v1,v3 -> edges v0-v1, v1-v3, v3-v0
-    // Face 2: v1,v2,v3 -> edges v1-v2, v2-v3, v3-v1
-    // Face 3: v2,v0,v3 -> edges v2-v0, v0-v3, v3-v2
-    // Edge v1-v3: in face 1 and face 2 -> interior
-    // Edge v3-v0: in face 1 and face 3 -> interior
-    // Edge v2-v3: in face 2 and face 3 -> interior
-    // So v3 IS interior! (all its edges are shared)
-    // But v0, v1, v2 each have boundary edges (v0-v1, v1-v2, v2-v0 are boundary)
     assert!(z_after < z_before, "Noisy vertex should move closer to neighbors");
 }
 

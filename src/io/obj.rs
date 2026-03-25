@@ -4,6 +4,7 @@ use std::path::Path;
 
 use nalgebra::{Point3, Vector3};
 
+use crate::Scalar;
 use crate::handle::VertexHandle;
 use crate::trimesh::TriMesh;
 use crate::polymesh::PolyMesh;
@@ -19,8 +20,8 @@ pub struct ObjOptions {
 /// Result of reading an OBJ file.
 #[derive(Clone, Debug, Default)]
 pub struct ObjData {
-    pub vertex_normals: Vec<Vector3<f64>>,
-    pub face_normals: Vec<Vec<Vector3<f64>>>,
+    pub vertex_normals: Vec<Vector3<Scalar>>,
+    pub face_normals: Vec<Vec<Vector3<Scalar>>>,
 }
 
 /// Errors from OBJ I/O.
@@ -78,8 +79,8 @@ pub fn read_trimesh_obj<P: AsRef<Path>>(path: P) -> Result<(TriMesh, ObjData), O
     let mut mesh = TriMesh::new();
     let mut data = ObjData::default();
 
-    let mut positions: Vec<Point3<f64>> = Vec::new();
-    let mut normals: Vec<Vector3<f64>> = Vec::new();
+    let mut positions: Vec<Point3<Scalar>> = Vec::new();
+    let mut normals: Vec<Vector3<Scalar>> = Vec::new();
     let mut vertex_handles: Vec<VertexHandle> = Vec::new();
 
     for line in reader.lines() {
@@ -100,9 +101,9 @@ pub fn read_trimesh_obj<P: AsRef<Path>>(path: P) -> Result<(TriMesh, ObjData), O
                 if parts.len() < 4 {
                     return Err(ObjError::Parse("vertex needs 3 coordinates".into()));
                 }
-                let x: f64 = parts[1].parse().map_err(|_| ObjError::Parse("bad vertex x".into()))?;
-                let y: f64 = parts[2].parse().map_err(|_| ObjError::Parse("bad vertex y".into()))?;
-                let z: f64 = parts[3].parse().map_err(|_| ObjError::Parse("bad vertex z".into()))?;
+                let x: Scalar = parts[1].parse().map_err(|_| ObjError::Parse("bad vertex x".into()))?;
+                let y: Scalar = parts[2].parse().map_err(|_| ObjError::Parse("bad vertex y".into()))?;
+                let z: Scalar = parts[3].parse().map_err(|_| ObjError::Parse("bad vertex z".into()))?;
                 let p = Point3::new(x, y, z);
                 positions.push(p);
                 let vh = mesh.add_vertex(p);
@@ -112,9 +113,9 @@ pub fn read_trimesh_obj<P: AsRef<Path>>(path: P) -> Result<(TriMesh, ObjData), O
                 if parts.len() < 4 {
                     return Err(ObjError::Parse("normal needs 3 components".into()));
                 }
-                let x: f64 = parts[1].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
-                let y: f64 = parts[2].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
-                let z: f64 = parts[3].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
+                let x: Scalar = parts[1].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
+                let y: Scalar = parts[2].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
+                let z: Scalar = parts[3].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
                 normals.push(Vector3::new(x, y, z));
             }
             "vt" => {
@@ -124,7 +125,7 @@ pub fn read_trimesh_obj<P: AsRef<Path>>(path: P) -> Result<(TriMesh, ObjData), O
                 let nv = positions.len();
                 let nn = normals.len();
                 let mut face_verts: Vec<VertexHandle> = Vec::new();
-                let mut face_normals: Vec<Vector3<f64>> = Vec::new();
+                let mut face_normals: Vec<Vector3<Scalar>> = Vec::new();
 
                 for &token in &parts[1..] {
                     let components: Vec<&str> = token.split('/').collect();
@@ -171,8 +172,8 @@ pub fn read_polymesh_obj<P: AsRef<Path>>(path: P) -> Result<(PolyMesh, ObjData),
     let mut mesh = PolyMesh::new();
     let mut data = ObjData::default();
 
-    let mut positions: Vec<Point3<f64>> = Vec::new();
-    let mut normals: Vec<Vector3<f64>> = Vec::new();
+    let mut positions: Vec<Point3<Scalar>> = Vec::new();
+    let mut normals: Vec<Vector3<Scalar>> = Vec::new();
     let mut vertex_handles: Vec<VertexHandle> = Vec::new();
 
     for line in reader.lines() {
@@ -193,9 +194,9 @@ pub fn read_polymesh_obj<P: AsRef<Path>>(path: P) -> Result<(PolyMesh, ObjData),
                 if parts.len() < 4 {
                     return Err(ObjError::Parse("vertex needs 3 coordinates".into()));
                 }
-                let x: f64 = parts[1].parse().map_err(|_| ObjError::Parse("bad vertex x".into()))?;
-                let y: f64 = parts[2].parse().map_err(|_| ObjError::Parse("bad vertex y".into()))?;
-                let z: f64 = parts[3].parse().map_err(|_| ObjError::Parse("bad vertex z".into()))?;
+                let x: Scalar = parts[1].parse().map_err(|_| ObjError::Parse("bad vertex x".into()))?;
+                let y: Scalar = parts[2].parse().map_err(|_| ObjError::Parse("bad vertex y".into()))?;
+                let z: Scalar = parts[3].parse().map_err(|_| ObjError::Parse("bad vertex z".into()))?;
                 let p = Point3::new(x, y, z);
                 positions.push(p);
                 let vh = mesh.add_vertex(p);
@@ -205,9 +206,9 @@ pub fn read_polymesh_obj<P: AsRef<Path>>(path: P) -> Result<(PolyMesh, ObjData),
                 if parts.len() < 4 {
                     return Err(ObjError::Parse("normal needs 3 components".into()));
                 }
-                let x: f64 = parts[1].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
-                let y: f64 = parts[2].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
-                let z: f64 = parts[3].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
+                let x: Scalar = parts[1].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
+                let y: Scalar = parts[2].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
+                let z: Scalar = parts[3].parse().map_err(|_| ObjError::Parse("bad normal".into()))?;
                 normals.push(Vector3::new(x, y, z));
             }
             "vt" => {}
@@ -215,7 +216,7 @@ pub fn read_polymesh_obj<P: AsRef<Path>>(path: P) -> Result<(PolyMesh, ObjData),
                 let nv = positions.len();
                 let nn = normals.len();
                 let mut face_verts: Vec<VertexHandle> = Vec::new();
-                let mut face_normals: Vec<Vector3<f64>> = Vec::new();
+                let mut face_normals: Vec<Vector3<Scalar>> = Vec::new();
 
                 for &token in &parts[1..] {
                     let components: Vec<&str> = token.split('/').collect();
@@ -249,7 +250,7 @@ pub fn read_polymesh_obj<P: AsRef<Path>>(path: P) -> Result<(PolyMesh, ObjData),
 pub fn write_trimesh_obj<P: AsRef<Path>>(
     path: P,
     mesh: &TriMesh,
-    normals: Option<&[Vector3<f64>]>,
+    normals: Option<&[Vector3<Scalar>]>,
 ) -> Result<(), ObjError> {
     let file = File::create(path)?;
     let mut w = BufWriter::new(file);
@@ -290,7 +291,7 @@ pub fn write_trimesh_obj<P: AsRef<Path>>(
 pub fn write_polymesh_obj<P: AsRef<Path>>(
     path: P,
     mesh: &PolyMesh,
-    normals: Option<&[Vector3<f64>]>,
+    normals: Option<&[Vector3<Scalar>]>,
 ) -> Result<(), ObjError> {
     let file = File::create(path)?;
     let mut w = BufWriter::new(file);

@@ -26,7 +26,7 @@ fn main() {
 
     // Create a standalone property store and add a vertex property for center-of-gravity.
     let mut props = PropertyStore::new();
-    let cog_prop = props.add::<VertexHandle, Point3<f64>>("v:cog", mesh.n_vertices());
+    let cog_prop = props.add::<VertexHandle, Point3<infmesh::Scalar>>("v:cog", mesh.n_vertices());
 
     for _ in 0..iterations {
         // Phase 1: compute the center of gravity for each vertex.
@@ -42,7 +42,7 @@ fn main() {
                 count += 1;
             }
             if count > 0 {
-                avg.coords /= count as f64;
+                avg.coords /= count as infmesh::Scalar;
             }
             props.set(cog_prop, vh, avg).unwrap();
         }

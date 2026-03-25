@@ -45,7 +45,7 @@ fn main() {
                 count += 1;
             }
             if count > 0 {
-                cog.coords /= count as f64;
+                cog.coords /= count as infmesh::Scalar;
             }
             new_points.push(cog);
         }

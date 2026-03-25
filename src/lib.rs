@@ -9,6 +9,10 @@ pub mod io;
 pub mod algo;
 pub mod primitives;
 
+/// Scalar type used for all geometry (vertex positions, normals, etc.).
+/// Change this to `f64` if double precision is needed.
+pub type Scalar = f32;
+
 pub use handle::{EdgeHandle, FaceHandle, HalfedgeHandle, Status, VertexHandle};
 pub use error::MeshError;
 pub use mesh::Connectivity;

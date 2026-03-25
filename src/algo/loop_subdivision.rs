@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use nalgebra::Point3;
 
+use crate::Scalar;
 use crate::handle::{EdgeHandle, VertexHandle};
 use crate::trimesh::TriMesh;
 
@@ -19,7 +20,7 @@ pub fn loop_subdivide(mesh: &mut TriMesh) {
     let n_old_edges = mesh.n_edges();
 
     // Phase 1: Compute new positions for old vertices
-    let mut new_positions: Vec<Point3<f64>> = Vec::with_capacity(n_old_vertices);
+    let mut new_positions: Vec<Point3<Scalar>> = Vec::with_capacity(n_old_vertices);
 
     for vh in mesh.vertices() {
         if mesh.is_boundary_vertex(vh) {
@@ -50,13 +51,13 @@ pub fn loop_subdivide(mesh: &mut TriMesh) {
             }
             let p = mesh.point(vh);
             new_positions.push(Point3::from(
-                p.coords * (1.0 - alpha) + neighbor_sum * (alpha / n as f64),
+                p.coords * (1.0 - alpha) + neighbor_sum * (alpha / n as Scalar),
             ));
         }
     }
 
     // Phase 2: Compute edge midpoint positions
-    let mut edge_points: Vec<Point3<f64>> = Vec::with_capacity(n_old_edges);
+    let mut edge_points: Vec<Point3<Scalar>> = Vec::with_capacity(n_old_edges);
 
     for ei in 0..n_old_edges {
         let eh = EdgeHandle::new(ei as u32);
@@ -127,8 +128,8 @@ pub fn loop_subdivide(mesh: &mut TriMesh) {
 
 /// Compute the Loop alpha weight for a vertex of valence n.
 /// alpha(n) = (40 - (3 + 2*cos(2*pi/n))^2) / 64
-fn loop_alpha(n: usize) -> f64 {
-    let t = 3.0 + 2.0 * (2.0 * std::f64::consts::PI / n as f64).cos();
+fn loop_alpha(n: usize) -> Scalar {
+    let t = 3.0 + 2.0 * (2.0 * std::f32::consts::PI / n as Scalar).cos();
     (40.0 - t * t) / 64.0
 }
 

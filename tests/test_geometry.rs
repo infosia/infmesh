@@ -21,9 +21,9 @@ fn face_normal_single_triangle() {
     let normal = calc_face_normal(&mesh, fh);
 
     // Triangle in XY plane, normal should be +Z
-    assert_relative_eq!(normal.z, 1.0, epsilon = 1e-10);
-    assert_relative_eq!(normal.x, 0.0, epsilon = 1e-10);
-    assert_relative_eq!(normal.y, 0.0, epsilon = 1e-10);
+    assert_relative_eq!(normal.z, 1.0, epsilon = 1e-5);
+    assert_relative_eq!(normal.x, 0.0, epsilon = 1e-5);
+    assert_relative_eq!(normal.y, 0.0, epsilon = 1e-5);
 }
 
 /// Single quad face normal (polymesh)
@@ -40,7 +40,7 @@ fn face_normal_single_quad() {
     let normal = calc_face_normal(&mesh, fh);
 
     // Quad in XY plane, normal should be +Z
-    assert_relative_eq!(normal.z, 1.0, epsilon = 1e-10);
+    assert_relative_eq!(normal.z, 1.0, epsilon = 1e-5);
 }
 
 /// Vertex normal on a tetrahedron
@@ -63,7 +63,7 @@ fn vertex_normal_tetrahedron() {
     for vh in mesh.vertices() {
         let n = calc_vertex_normal(&mesh, vh);
         let len = n.norm();
-        assert_relative_eq!(len, 1.0, epsilon = 1e-10);
+        assert_relative_eq!(len, 1.0, epsilon = 1e-5);
     }
 }
 
@@ -83,9 +83,9 @@ fn face_centroid_triangle() {
     let fh = mesh.add_face(&[v0, v1, v2]).unwrap();
 
     let centroid = calc_face_centroid(&mesh, fh);
-    assert_relative_eq!(centroid.x, 1.0, epsilon = 1e-10);
-    assert_relative_eq!(centroid.y, 1.0, epsilon = 1e-10);
-    assert_relative_eq!(centroid.z, 0.0, epsilon = 1e-10);
+    assert_relative_eq!(centroid.x, 1.0, epsilon = 1e-5);
+    assert_relative_eq!(centroid.y, 1.0, epsilon = 1e-5);
+    assert_relative_eq!(centroid.z, 0.0, epsilon = 1e-5);
 }
 
 /// Edge midpoint
@@ -101,9 +101,9 @@ fn edge_midpoint() {
     let hh = mesh.find_halfedge(v0, v1).unwrap();
     let mid = calc_edge_midpoint(&mesh, hh.edge());
 
-    assert_relative_eq!(mid.x, 1.0, epsilon = 1e-10);
-    assert_relative_eq!(mid.y, 0.0, epsilon = 1e-10);
-    assert_relative_eq!(mid.z, 0.0, epsilon = 1e-10);
+    assert_relative_eq!(mid.x, 1.0, epsilon = 1e-5);
+    assert_relative_eq!(mid.y, 0.0, epsilon = 1e-5);
+    assert_relative_eq!(mid.z, 0.0, epsilon = 1e-5);
 }
 
 /// Mesh centroid
@@ -118,9 +118,9 @@ fn mesh_centroid() {
 
     let centroid = calc_mesh_centroid(&mesh);
     // Average of 3 vertices: (4/3, 4/3, 0)
-    assert_relative_eq!(centroid.x, 4.0 / 3.0, epsilon = 1e-10);
-    assert_relative_eq!(centroid.y, 4.0 / 3.0, epsilon = 1e-10);
-    assert_relative_eq!(centroid.z, 0.0, epsilon = 1e-10);
+    assert_relative_eq!(centroid.x, 4.0 / 3.0, epsilon = 1e-5);
+    assert_relative_eq!(centroid.y, 4.0 / 3.0, epsilon = 1e-5);
+    assert_relative_eq!(centroid.z, 0.0, epsilon = 1e-5);
 }
 
 // ============================================================================
@@ -138,7 +138,7 @@ fn edge_length_basic() {
 
     let hh = mesh.find_halfedge(v0, v1).unwrap();
     let len = calc_edge_length(&mesh, hh.edge());
-    assert_relative_eq!(len, 5.0, epsilon = 1e-10);
+    assert_relative_eq!(len, 5.0, epsilon = 1e-5);
 }
 
 // ============================================================================
@@ -155,7 +155,7 @@ fn face_area_right_triangle() {
     let fh = mesh.add_face(&[v0, v1, v2]).unwrap();
 
     let area = calc_face_area(&mesh, fh);
-    assert_relative_eq!(area, 6.0, epsilon = 1e-10); // 3*4/2
+    assert_relative_eq!(area, 6.0, epsilon = 1e-5); // 3*4/2
 }
 
 #[test]
@@ -168,7 +168,7 @@ fn face_area_unit_triangle() {
     let fh = mesh.add_face(&[v0, v1, v2]).unwrap();
 
     let area = calc_face_area(&mesh, fh);
-    assert_relative_eq!(area, 0.5, epsilon = 1e-10);
+    assert_relative_eq!(area, 0.5, epsilon = 1e-5);
 }
 
 // ============================================================================
@@ -189,7 +189,7 @@ fn dihedral_angle_coplanar() {
 
     let hh = mesh.find_halfedge(v1, v2).unwrap();
     let angle = calc_dihedral_angle(&mesh, hh.edge());
-    assert_relative_eq!(angle.abs(), 0.0, epsilon = 1e-10);
+    assert_relative_eq!(angle.abs(), 0.0, epsilon = 1e-5);
 }
 
 /// Two perpendicular triangles have dihedral angle pi/2
@@ -206,7 +206,7 @@ fn dihedral_angle_right_angle() {
 
     let hh = mesh.find_halfedge(v0, v1).unwrap();
     let angle = calc_dihedral_angle(&mesh, hh.edge());
-    assert_relative_eq!(angle.abs(), std::f64::consts::FRAC_PI_2, epsilon = 1e-10);
+    assert_relative_eq!(angle.abs(), std::f32::consts::FRAC_PI_2, epsilon = 1e-5);
 }
 
 /// Boundary edge has dihedral angle 0
@@ -222,7 +222,7 @@ fn dihedral_angle_boundary() {
     // All edges are boundary
     for eh in mesh.edges() {
         let angle = calc_dihedral_angle(&mesh, eh);
-        assert_relative_eq!(angle, 0.0, epsilon = 1e-10);
+        assert_relative_eq!(angle, 0.0, epsilon = 1e-5);
     }
 }
 
@@ -241,5 +241,5 @@ fn edge_vector_basic() {
 
     let hh = mesh.find_halfedge(v0, v1).unwrap();
     let vec = calc_edge_vector(&mesh, hh);
-    assert_relative_eq!(vec, Vector3::new(3.0, 3.0, 3.0), epsilon = 1e-10);
+    assert_relative_eq!(vec, Vector3::new(3.0, 3.0, 3.0), epsilon = 1e-5);
 }

@@ -19,32 +19,32 @@ fn main() {
 
     // Quad
     let (mesh, _) = Quad.generate().unwrap();
-    write_polymesh(&mut w, &mesh, spacing * obj_index as f64, &mut vertex_offset, "quad").unwrap();
+    write_polymesh(&mut w, &mesh, spacing * obj_index as infmesh::Scalar, &mut vertex_offset, "quad").unwrap();
     obj_index += 1;
 
     // Circle (12 segments)
     let (mesh, _) = Circle { segments: 12 }.generate().unwrap();
-    write_polymesh(&mut w, &mesh, spacing * obj_index as f64, &mut vertex_offset, "circle").unwrap();
+    write_polymesh(&mut w, &mesh, spacing * obj_index as infmesh::Scalar, &mut vertex_offset, "circle").unwrap();
     obj_index += 1;
 
     // Cube (1x1x1)
     let (mesh, _) = Cube { subdivisions: [1, 1, 1] }.generate().unwrap();
-    write_polymesh(&mut w, &mesh, spacing * obj_index as f64, &mut vertex_offset, "cube").unwrap();
+    write_polymesh(&mut w, &mesh, spacing * obj_index as infmesh::Scalar, &mut vertex_offset, "cube").unwrap();
     obj_index += 1;
 
     // Cube (2x2x2 subdivisions)
     let (mesh, _) = Cube { subdivisions: [2, 2, 2] }.generate().unwrap();
-    write_polymesh(&mut w, &mesh, spacing * obj_index as f64, &mut vertex_offset, "cube_subdivided").unwrap();
+    write_polymesh(&mut w, &mesh, spacing * obj_index as infmesh::Scalar, &mut vertex_offset, "cube_subdivided").unwrap();
     obj_index += 1;
 
     // Icosphere (0 subdivisions)
     let (mesh, _) = Icosphere { subdivisions: 0 }.generate().unwrap();
-    write_trimesh(&mut w, &mesh, spacing * obj_index as f64, &mut vertex_offset, "icosphere_0").unwrap();
+    write_trimesh(&mut w, &mesh, spacing * obj_index as infmesh::Scalar, &mut vertex_offset, "icosphere_0").unwrap();
     obj_index += 1;
 
     // Icosphere (2 subdivisions)
     let (mesh, _) = Icosphere { subdivisions: 2 }.generate().unwrap();
-    write_trimesh(&mut w, &mesh, spacing * obj_index as f64, &mut vertex_offset, "icosphere_2").unwrap();
+    write_trimesh(&mut w, &mesh, spacing * obj_index as infmesh::Scalar, &mut vertex_offset, "icosphere_2").unwrap();
     obj_index += 1;
 
     // Cylinder (8 segments)
@@ -55,7 +55,7 @@ fn main() {
     }
     .generate()
     .unwrap();
-    write_polymesh(&mut w, &mesh, spacing * obj_index as f64, &mut vertex_offset, "cylinder").unwrap();
+    write_polymesh(&mut w, &mesh, spacing * obj_index as infmesh::Scalar, &mut vertex_offset, "cylinder").unwrap();
     obj_index += 1;
 
     // UV Sphere (16 segments, 8 rings)
@@ -65,7 +65,7 @@ fn main() {
     }
     .generate()
     .unwrap();
-    write_polymesh(&mut w, &mesh, spacing * obj_index as f64, &mut vertex_offset, "uv_sphere").unwrap();
+    write_polymesh(&mut w, &mesh, spacing * obj_index as infmesh::Scalar, &mut vertex_offset, "uv_sphere").unwrap();
 
     println!("Wrote {} primitives to {}", obj_index + 1, path);
 }
@@ -73,7 +73,7 @@ fn main() {
 fn write_polymesh(
     w: &mut impl Write,
     mesh: &PolyMesh,
-    x_offset: f64,
+    x_offset: infmesh::Scalar,
     vertex_offset: &mut usize,
     name: &str,
 ) -> std::io::Result<()> {
@@ -96,7 +96,7 @@ fn write_polymesh(
 fn write_trimesh(
     w: &mut impl Write,
     mesh: &TriMesh,
-    x_offset: f64,
+    x_offset: infmesh::Scalar,
     vertex_offset: &mut usize,
     name: &str,
 ) -> std::io::Result<()> {

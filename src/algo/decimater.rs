@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 
 use nalgebra::{Matrix4, Vector4};
 
+use crate::Scalar;
 use crate::handle::HalfedgeHandle;
 use crate::trimesh::TriMesh;
 use crate::geometry;
@@ -16,7 +17,7 @@ use crate::geometry;
 /// Reference: Garland & Heckbert, "Surface Simplification Using Quadric Error Metrics", 1997.
 #[derive(Clone, Debug)]
 struct Quadric {
-    m: Matrix4<f64>,
+    m: Matrix4<Scalar>,
 }
 
 impl Default for Quadric {
@@ -29,13 +30,13 @@ impl Default for Quadric {
 
 impl Quadric {
     /// Create a quadric from a plane equation ax + by + cz + d = 0.
-    fn from_plane(a: f64, b: f64, c: f64, d: f64) -> Self {
+    fn from_plane(a: Scalar, b: Scalar, c: Scalar, d: Scalar) -> Self {
         let v = Vector4::new(a, b, c, d);
         Self { m: v * v.transpose() }
     }
 
     /// Evaluate the error at position (x, y, z).
-    fn evaluate(&self, x: f64, y: f64, z: f64) -> f64 {
+    fn evaluate(&self, x: Scalar, y: Scalar, z: Scalar) -> Scalar {
         let v = Vector4::new(x, y, z, 1.0);
         (v.transpose() * &self.m * v)[(0, 0)]
     }
@@ -52,7 +53,7 @@ impl Quadric {
 #[derive(Clone, Debug)]
 struct CollapseCandidate {
     halfedge: HalfedgeHandle,
-    error: f64,
+    error: Scalar,
 }
 
 impl PartialEq for CollapseCandidate {

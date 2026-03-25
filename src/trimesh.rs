@@ -2,6 +2,7 @@ use std::ops::{Deref, DerefMut};
 
 use nalgebra::Point3;
 
+use crate::Scalar;
 use crate::handle::{FaceHandle, VertexHandle};
 use crate::error::MeshError;
 use crate::mesh::Connectivity;
@@ -13,7 +14,7 @@ use crate::mesh::Connectivity;
 #[derive(Clone, Debug, Default)]
 pub struct TriMesh {
     conn: Connectivity,
-    points: Vec<Point3<f64>>,
+    points: Vec<Point3<Scalar>>,
 }
 
 impl Deref for TriMesh {
@@ -35,19 +36,19 @@ impl TriMesh {
     }
 
     /// Add a vertex with position.
-    pub fn add_vertex(&mut self, point: Point3<f64>) -> VertexHandle {
+    pub fn add_vertex(&mut self, point: Point3<Scalar>) -> VertexHandle {
         let vh = self.conn.new_vertex();
         self.points.push(point);
         vh
     }
 
     /// Get vertex position.
-    pub fn point(&self, vh: VertexHandle) -> &Point3<f64> {
+    pub fn point(&self, vh: VertexHandle) -> &Point3<Scalar> {
         &self.points[vh.idx()]
     }
 
     /// Get mutable vertex position.
-    pub fn point_mut(&mut self, vh: VertexHandle) -> &mut Point3<f64> {
+    pub fn point_mut(&mut self, vh: VertexHandle) -> &mut Point3<Scalar> {
         &mut self.points[vh.idx()]
     }
 

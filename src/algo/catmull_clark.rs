@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use nalgebra::Point3;
 
+use crate::Scalar;
 use crate::handle::{FaceHandle, VertexHandle};
 use crate::polymesh::PolyMesh;
 
@@ -42,7 +43,7 @@ pub fn catmull_clark_subdivide(mesh: &mut PolyMesh) {
     }
 
     // Collect live vertices
-    let mut vertex_positions: HashMap<usize, Point3<f64>> = HashMap::new();
+    let mut vertex_positions: HashMap<usize, Point3<Scalar>> = HashMap::new();
     let mut vertex_is_boundary: HashMap<usize, bool> = HashMap::new();
     for vh in mesh.vertices() {
         if mesh.is_deleted_vertex(vh) {
@@ -125,18 +126,18 @@ pub fn catmull_clark_subdivide(mesh: &mut PolyMesh) {
     // ---------------------------------------------------------------
 
     // Face points: face_idx -> Point3
-    let mut face_points: HashMap<usize, Point3<f64>> = HashMap::new();
+    let mut face_points: HashMap<usize, Point3<Scalar>> = HashMap::new();
     for (&fi, verts) in &face_verts {
         let mut sum = nalgebra::Vector3::zeros();
         for v in verts {
             sum += vertex_positions[&v.idx()].coords;
         }
-        let n = verts.len() as f64;
+        let n = verts.len() as Scalar;
         face_points.insert(fi, Point3::from(sum / n));
     }
 
     // Edge points: edge_idx -> Point3
-    let mut edge_points_map: HashMap<usize, Point3<f64>> = HashMap::new();
+    let mut edge_points_map: HashMap<usize, Point3<Scalar>> = HashMap::new();
     for (&ei, &(v0, v1)) in &edge_endpoints {
         let p0 = vertex_positions[&v0.idx()];
         let p1 = vertex_positions[&v1.idx()];
@@ -156,7 +157,7 @@ pub fn catmull_clark_subdivide(mesh: &mut PolyMesh) {
     }
 
     // Vertex points: vertex_idx -> Point3
-    let mut new_vertex_positions: HashMap<usize, Point3<f64>> = HashMap::new();
+    let mut new_vertex_positions: HashMap<usize, Point3<Scalar>> = HashMap::new();
     for (&vi, &pos) in &vertex_positions {
         let is_boundary = vertex_is_boundary[&vi];
         if is_boundary {
@@ -189,7 +190,7 @@ pub fn catmull_clark_subdivide(mesh: &mut PolyMesh) {
             for &fi in adj_faces {
                 f_sum += face_points[&fi].coords;
             }
-            let f_avg = f_sum / n as f64;
+            let f_avg = f_sum / n as Scalar;
 
             // R = average of midpoints of adjacent edges
             let mut r_sum = nalgebra::Vector3::zeros();
@@ -204,13 +205,13 @@ pub fn catmull_clark_subdivide(mesh: &mut PolyMesh) {
                 }
             }
             let r_avg = if r_count > 0 {
-                r_sum / r_count as f64
+                r_sum / r_count as Scalar
             } else {
                 nalgebra::Vector3::zeros()
             };
 
-            let n_f64 = n as f64;
-            let new_pos = (f_avg + r_avg * 2.0 + pos.coords * (n_f64 - 3.0)) / n_f64;
+            let n_s = n as Scalar;
+            let new_pos = (f_avg + r_avg * 2.0 + pos.coords * (n_s - 3.0)) / n_s;
             new_vertex_positions.insert(vi, Point3::from(new_pos));
         }
     }

@@ -1,5 +1,6 @@
 use nalgebra::{Point3, Vector3};
 
+use crate::Scalar;
 use crate::handle::VertexHandle;
 use crate::trimesh::TriMesh;
 
@@ -10,7 +11,7 @@ pub struct SmoothOptions {
     pub iterations: usize,
     /// Damping factor (0.0 = no smoothing, 1.0 = full Laplacian).
     /// Typical value: 0.5
-    pub lambda: f64,
+    pub lambda: Scalar,
     /// If true, boundary vertices are kept fixed.
     pub fix_boundary: bool,
 }
@@ -38,7 +39,7 @@ pub fn laplacian_smooth(mesh: &mut TriMesh, opts: &SmoothOptions) {
 
     for _ in 0..opts.iterations {
         // Compute new positions (Jacobi: read old, write new)
-        let mut new_positions: Vec<Point3<f64>> = Vec::with_capacity(n);
+        let mut new_positions: Vec<Point3<Scalar>> = Vec::with_capacity(n);
 
         for vi in 0..n {
             let vh = VertexHandle::new(vi as u32);
@@ -62,7 +63,7 @@ pub fn laplacian_smooth(mesh: &mut TriMesh, opts: &SmoothOptions) {
                 continue;
             }
 
-            let centroid = sum / count as f64;
+            let centroid = sum / count as Scalar;
             let p = mesh.point(vh).coords;
             let new_p = p + opts.lambda * (centroid - p);
             new_positions.push(Point3::from(new_p));
@@ -83,7 +84,7 @@ pub fn laplacian_smooth(mesh: &mut TriMesh, opts: &SmoothOptions) {
 ///   2. Smooth with -mu (expand), where mu > lambda
 ///
 /// This preserves volume better than plain Laplacian smoothing.
-pub fn taubin_smooth(mesh: &mut TriMesh, iterations: usize, lambda: f64, mu: f64, fix_boundary: bool) {
+pub fn taubin_smooth(mesh: &mut TriMesh, iterations: usize, lambda: Scalar, mu: Scalar, fix_boundary: bool) {
     let opts_shrink = SmoothOptions {
         iterations: 1,
         lambda,
