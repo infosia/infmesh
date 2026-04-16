@@ -38,7 +38,7 @@ impl Quadric {
     /// Evaluate the error at position (x, y, z).
     fn evaluate(&self, x: Scalar, y: Scalar, z: Scalar) -> Scalar {
         let v = Vector4::new(x, y, z, 1.0);
-        (v.transpose() * &self.m * v)[(0, 0)]
+        (v.transpose() * self.m * v)[(0, 0)]
     }
 
     /// Sum two quadrics.

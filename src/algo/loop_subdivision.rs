@@ -90,9 +90,9 @@ pub fn loop_subdivide(mesh: &mut TriMesh) {
     // We need to track which new vertex was created for each old edge.
     let mut edge_vertex_map: HashMap<usize, VertexHandle> = HashMap::new();
 
-    for ei in 0..n_old_edges {
+    for (ei, &pt) in edge_points.iter().enumerate().take(n_old_edges) {
         let eh = EdgeHandle::new(ei as u32);
-        let new_vh = mesh.add_vertex(edge_points[ei]);
+        let new_vh = mesh.add_vertex(pt);
         edge_vertex_map.insert(ei, new_vh);
         mesh.split_edge(eh, new_vh);
     }
@@ -120,9 +120,9 @@ pub fn loop_subdivide(mesh: &mut TriMesh) {
     }
 
     // Phase 5: Update old vertex positions
-    for i in 0..n_old_vertices {
+    for (i, &pt) in new_positions.iter().enumerate().take(n_old_vertices) {
         let vh = VertexHandle::new(i as u32);
-        *mesh.point_mut(vh) = new_positions[i];
+        *mesh.point_mut(vh) = pt;
     }
 }
 

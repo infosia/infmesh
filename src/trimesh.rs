@@ -74,10 +74,10 @@ impl TriMesh {
     pub fn garbage_collection(&mut self) {
         let v_map = self.conn.garbage_collection();
         let mut new_vi = 0usize;
-        for i in 0..v_map.len() {
-            if v_map[i].idx() != u32::MAX as usize {
+        for (i, v) in v_map.iter().enumerate() {
+            if v.idx() != u32::MAX as usize {
                 if new_vi != i {
-                    self.points[new_vi] = self.points[i].clone();
+                    self.points[new_vi] = self.points[i];
                 }
                 new_vi += 1;
             }

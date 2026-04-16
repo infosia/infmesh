@@ -70,9 +70,9 @@ pub fn laplacian_smooth(mesh: &mut TriMesh, opts: &SmoothOptions) {
         }
 
         // Apply new positions
-        for vi in 0..n {
+        for (vi, &pt) in new_positions.iter().enumerate().take(n) {
             let vh = VertexHandle::new(vi as u32);
-            *mesh.point_mut(vh) = new_positions[vi];
+            *mesh.point_mut(vh) = pt;
         }
     }
 }

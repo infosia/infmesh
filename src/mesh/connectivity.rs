@@ -698,10 +698,10 @@ impl Connectivity {
             self.edge_data[i].is_new = hh.is_none();
             self.edge_data[i].needs_adjust = false;
 
-            if let Some(hh) = hh {
-                if !self.is_boundary_halfedge(hh) {
-                    return Err(MeshError::ComplexEdge);
-                }
+            if let Some(hh) = hh
+                && !self.is_boundary_halfedge(hh)
+            {
+                return Err(MeshError::ComplexEdge);
             }
         }
 
@@ -824,9 +824,9 @@ impl Connectivity {
         // Phase 7: Adjust vertices' halfedge handle
         // Note: edge_data[i].needs_adjust was set for vertex_handles[i] in Phase 2,
         // so the i-th flag corresponds to the i-th input vertex.
-        for i in 0..n {
+        for (i, &vh) in vertex_handles.iter().enumerate().take(n) {
             if self.edge_data[i].needs_adjust {
-                self.adjust_outgoing_halfedge(vertex_handles[i]);
+                self.adjust_outgoing_halfedge(vh);
             }
         }
 

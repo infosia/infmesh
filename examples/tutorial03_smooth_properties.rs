@@ -49,7 +49,7 @@ fn main() {
 
         // Phase 2: apply stored positions.
         for vh in mesh.vertices() {
-            let cog = props.get(cog_prop, vh).unwrap().clone();
+            let cog = *props.get(cog_prop, vh).unwrap();
             *mesh.point_mut(vh) = cog;
         }
     }

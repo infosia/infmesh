@@ -140,13 +140,12 @@ impl PropertyStore {
         name: &str,
     ) -> Option<PropertyHandle<H, T>> {
         for (id, entry) in self.entries.iter().enumerate() {
-            if let Some(e) = entry {
-                if e.kind == H::KIND && e.storage.name() == name {
-                    // Verify type matches
-                    if e.storage.as_any().downcast_ref::<TypedProperty<T>>().is_some() {
-                        return Some(PropertyHandle { id, _phantom: PhantomData });
-                    }
-                }
+            if let Some(e) = entry
+                && e.kind == H::KIND
+                && e.storage.name() == name
+                && e.storage.as_any().downcast_ref::<TypedProperty<T>>().is_some()
+            {
+                return Some(PropertyHandle { id, _phantom: PhantomData });
             }
         }
         None
@@ -218,22 +217,18 @@ impl PropertyStore {
 
     /// Resize all properties of a given kind to match the current element count.
     pub fn resize(&mut self, kind: PropertyKind, new_len: usize) {
-        for entry in &mut self.entries {
-            if let Some(e) = entry {
-                if e.kind == kind {
-                    e.storage.resize_default(new_len);
-                }
+        for e in self.entries.iter_mut().flatten() {
+            if e.kind == kind {
+                e.storage.resize_default(new_len);
             }
         }
     }
 
     /// Copy all properties from one element to another for a given kind.
     pub fn copy_all(&mut self, kind: PropertyKind, from: usize, to: usize) {
-        for entry in &mut self.entries {
-            if let Some(e) = entry {
-                if e.kind == kind {
-                    e.storage.copy_element(from, to);
-                }
+        for e in self.entries.iter_mut().flatten() {
+            if e.kind == kind {
+                e.storage.copy_element(from, to);
             }
         }
     }
@@ -241,11 +236,9 @@ impl PropertyStore {
     /// Compact all properties of a given kind using a handle mapping.
     /// `map[old_index]` gives the new index; `usize::MAX` means deleted.
     pub fn compact(&mut self, kind: PropertyKind, map: &[usize]) {
-        for entry in &mut self.entries {
-            if let Some(e) = entry {
-                if e.kind == kind {
-                    e.storage.compact(map);
-                }
+        for e in self.entries.iter_mut().flatten() {
+            if e.kind == kind {
+                e.storage.compact(map);
             }
         }
     }

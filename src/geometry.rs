@@ -12,12 +12,12 @@ pub trait MeshGeometry {
 }
 
 impl MeshGeometry for TriMesh {
-    fn conn(&self) -> &crate::mesh::Connectivity { &**self }
+    fn conn(&self) -> &crate::mesh::Connectivity { self }
     fn point(&self, vh: VertexHandle) -> &Point3<Scalar> { self.point(vh) }
 }
 
 impl MeshGeometry for PolyMesh {
-    fn conn(&self) -> &crate::mesh::Connectivity { &**self }
+    fn conn(&self) -> &crate::mesh::Connectivity { self }
     fn point(&self, vh: VertexHandle) -> &Point3<Scalar> { self.point(vh) }
 }
 
