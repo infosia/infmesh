@@ -1,6 +1,6 @@
 # infmesh
 
-Unofficial Rust port of the [OpenMesh](https://www.graphics.rwth-aachen.de/software/infmesh/) halfedge mesh library. Not a direct C++ translation or FFI wrapper -- built from the ground up using idiomatic Rust patterns.
+Unofficial Rust port of the [OpenMesh](https://www.graphics.rwth-aachen.de/software/openmesh/) halfedge mesh library. Not a direct C++ translation or FFI wrapper -- built from the ground up using idiomatic Rust patterns.
 
 ## Features
 
