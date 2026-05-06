@@ -55,7 +55,7 @@ pub fn catmull_clark_subdivide(mesh: &mut PolyMesh) {
 
     // Build edge adjacency: edge_idx -> Vec<face_idx>
     let mut edge_faces: HashMap<usize, Vec<usize>> = HashMap::new();
-    for (&fi, _) in &face_verts {
+    for &fi in face_verts.keys() {
         let fh = FaceHandle::new(fi as u32);
         for eh in mesh.fe_ccw_iter(fh) {
             edge_faces.entry(eh.idx()).or_default().push(fi);
@@ -142,7 +142,7 @@ pub fn catmull_clark_subdivide(mesh: &mut PolyMesh) {
         let p0 = vertex_positions[&v0.idx()];
         let p1 = vertex_positions[&v1.idx()];
         let adj = edge_faces.get(&ei);
-        let is_boundary = adj.map_or(true, |fs| fs.len() < 2);
+        let is_boundary = adj.is_none_or(|fs| fs.len() < 2);
         if is_boundary {
             edge_points_map.insert(ei, Point3::from((p0.coords + p1.coords) * 0.5));
         } else {

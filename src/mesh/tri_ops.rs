@@ -293,10 +293,10 @@ impl Connectivity {
         self.adjust_outgoing_halfedge(v1);
 
         // face -> halfedge
-        if let Some(f) = fo {
-            if self.face_halfedge_handle(f) == o0 {
-                self.set_face_halfedge_handle(f, h1);
-            }
+        if let Some(f) = fo
+            && self.face_halfedge_handle(f) == o0
+        {
+            self.set_face_halfedge_handle(f, h1);
         }
 
         // Delete stuff

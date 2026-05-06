@@ -246,7 +246,7 @@ impl Primitive for Icosphere {
         let n_verts = mesh.n_vertices();
         for i in 0..n_verts {
             let vh = VertexHandle::new(i as u32);
-            let p = mesh.point(vh).clone();
+            let p = *mesh.point(vh);
             let len = (p.x * p.x + p.y * p.y + p.z * p.z).sqrt();
             if len > 0.0 {
                 *mesh.point_mut(vh) = Point3::new(p.x / len * 0.5, p.y / len * 0.5, p.z / len * 0.5);
@@ -273,8 +273,8 @@ fn get_midpoint(
     if let Some(&mid) = cache.get(&key) {
         return mid;
     }
-    let p1 = mesh.point(v1).clone();
-    let p2 = mesh.point(v2).clone();
+    let p1 = *mesh.point(v1);
+    let p2 = *mesh.point(v2);
     let mid_pos = Point3::new(
         (p1.x + p2.x) * 0.5,
         (p1.y + p2.y) * 0.5,

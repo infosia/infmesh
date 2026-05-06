@@ -109,12 +109,7 @@ impl Connectivity {
     /// Find a face that contains both vertices `a` and `b`.
     pub fn find_shared_face(&self, a: VertexHandle, b: VertexHandle) -> Option<FaceHandle> {
         let faces_a: HashSet<FaceHandle> = self.vf_cw_iter(a).collect();
-        for fh in self.vf_cw_iter(b) {
-            if faces_a.contains(&fh) {
-                return Some(fh);
-            }
-        }
-        None
+        self.vf_cw_iter(b).find(|fh| faces_a.contains(fh))
     }
 
     /// Insert an edge across a face, splitting it into two faces.
@@ -227,10 +222,8 @@ impl PolyMesh {
                     let other_selected = [f0, f1].iter()
                         .filter_map(|f| *f)
                         .any(|f| f != fh && face_set.contains(&f));
-                    if !other_selected {
-                        if boundary_edge_set.insert(key) {
-                            boundary_edges.push((v_src, v_dst));
-                        }
+                    if !other_selected && boundary_edge_set.insert(key) {
+                        boundary_edges.push((v_src, v_dst));
                     }
                 }
             }
@@ -318,8 +311,8 @@ impl PolyMesh {
         // Create midpoint vertices for each ring edge
         let mut edge_mids: HashMap<(VertexHandle, VertexHandle), VertexHandle> = HashMap::new();
         for &(va, vb) in &ring_keys {
-            let pos_a = self.point(va).clone();
-            let pos_b = self.point(vb).clone();
+            let pos_a = *self.point(va);
+            let pos_b = *self.point(vb);
             let mid_pos = nalgebra::Point3::new(
                 (pos_a.x + pos_b.x) * 0.5,
                 (pos_a.y + pos_b.y) * 0.5,
@@ -399,19 +392,17 @@ impl PolyMesh {
                 face2_verts.push(expanded[mid_a_pos]);
 
                 for sub_verts in [&face1_verts, &face2_verts] {
-                    if sub_verts.len() >= 3 {
-                        if let Ok(new_fh) = self.add_face(sub_verts) {
-                            new_faces.push(new_fh);
-                        }
-                    }
-                }
-            } else {
-                // General case: re-add expanded polygon as-is
-                if expanded.len() >= 3 {
-                    if let Ok(new_fh) = self.add_face(&expanded) {
+                    if sub_verts.len() >= 3
+                        && let Ok(new_fh) = self.add_face(sub_verts)
+                    {
                         new_faces.push(new_fh);
                     }
                 }
+            } else if expanded.len() >= 3
+                && let Ok(new_fh) = self.add_face(&expanded)
+            {
+                // General case: re-add expanded polygon as-is
+                new_faces.push(new_fh);
             }
         }
 
@@ -439,8 +430,8 @@ impl PolyMesh {
         let v0 = self.from_vertex_handle(h0);
         let v1 = self.to_vertex_handle(h0);
 
-        let p0 = self.point(v0).clone();
-        let p1 = self.point(v1).clone();
+        let p0 = *self.point(v0);
+        let p1 = *self.point(v1);
         let mid = nalgebra::Point3::new(
             (p0.x + p1.x) * 0.5,
             (p0.y + p1.y) * 0.5,
@@ -609,12 +600,11 @@ impl PolyMesh {
             for i in 0..n {
                 let va = reversed[i];
                 let vb = reversed[(i + 1) % n];
-                if let Some(hh) = self.find_halfedge(va, vb) {
-                    if let Some(adj_fh) = self.face_handle(hh) {
-                        if !face_set.contains(&adj_fh) {
-                            return Err(MeshError::ComplexEdge);
-                        }
-                    }
+                if let Some(hh) = self.find_halfedge(va, vb)
+                    && let Some(adj_fh) = self.face_handle(hh)
+                    && !face_set.contains(&adj_fh)
+                {
+                    return Err(MeshError::ComplexEdge);
                 }
             }
 
